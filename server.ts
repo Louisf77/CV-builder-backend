@@ -24,17 +24,57 @@ app.get("/", async (req, res) => {
   res.json(dbres.rows);
 });
 
-//view cv
+//view cv for specific user
+app.get("/viewCV/:userID", async (req,res) => {
+  const userID = req.params.userID
+  try {
+    const queryValues = [userID]
+    const userQuery = "select * from users where user_id = $1"
+    const userQRes = await client.query(userQuery,queryValues)
+    let user = userQRes.rows[0]
+
+    const edQuery = "select ed_id,institution_name,start_date,end_date,qualification_level,grade,subject from education where user_id = $1"
+    const edQRes = await client.query(edQuery,queryValues)
+    user.eduction = edQRes.rows
+
+    const workQuery = "select work_id,company_name,role,start_date,end_date,responsibilities from work_experience where user_id = $1"
+    const workQRes = await client.query(workQuery,queryValues)
+    user.work = workQRes.rows
+
+    const skillQuery = "select skill_id,skill from skills where user_id = $1"
+    const skillQRes = await client.query(skillQuery,queryValues)
+    user.skill = skillQRes.rows
+
+    const interestQuery = "select interest_id,interest from interests where user_id = $1"
+    const interestQRes = await client.query(interestQuery,queryValues)
+    user.interest = interestQRes.rows
+
+    const bioQuery = "select bio_id,bio from bio where user_id = $1"
+    const bioQRes = await client.query(bioQuery,queryValues)
+    user.bio = bioQRes.rows
+    
+    res.status(201).json({
+      status: "success",
+      data:{
+        userData: user
+      }
+    }) 
+  }
+  catch (error) {
+    console.error(error.message)
+  }
+})
+
 
 //update data
 
 
 //create details for cv
 app.post("/create/personal-details", async (req,res) => {
-  const {firstName,surname,DOB,email,mobile} = req.body
+  const {firstName,surname,DOB,email,mobile,address} = req.body
   try {
-    const queryValues = [firstName,surname,DOB,email,mobile]
-    const query = "INSERT into users(first_name,surname,dob,email,mobile) values ($1,$2,$3,$4,$5)"
+    const queryValues = [firstName,surname,DOB,email,mobile,address]
+    const query = "INSERT into users(first_name,surname,dob,email,mobile,address) values ($1,$2,$3,$4,$5)"
     await client.query(query,queryValues)
     res.status(201).json({
       status: "success",
@@ -65,10 +105,10 @@ app.get("/education/:userID", async (req, res) => {
 //create education details for cv
 app.post("/create/education/:userID", async (req,res) => {
   const userID = req.params.userID
-  const {institutionName,startDate,endDate,qualificationLevel,grade} = req.body
+  const {institutionName,startDate,endDate,qualificationLevel,grade,subject} = req.body
   try {
-    const queryValues = [userID,institutionName,startDate,endDate,qualificationLevel,grade]
-    const query = "INSERT into education(user_id,institution_name,start_date,end_date,qualification_level,grade) values ($1,$2,$3,$4,$5,$6)"
+    const queryValues = [userID,institutionName,startDate,endDate,qualificationLevel,grade,subject]
+    const query = "INSERT into education(user_id,institution_name,start_date,end_date,qualification_level,grade,subject) values ($1,$2,$3,$4,$5,$6,$7)"
     await client.query(query,queryValues)
     res.status(201).json({
       status: "success",
@@ -226,4 +266,4 @@ if (!port) {
 }
 app.listen(port, () => {
   console.log(`Server is up and running on port ${port}`);
-});
+})
