@@ -33,9 +33,9 @@ app.get("/viewCV/:userID", async (req,res) => {
     const userQRes = await client.query(userQuery,queryValues)
     let user = userQRes.rows[0]
 
-    const edQuery = "select ed_id,institution_name,start_date,end_date,qualification_level,grade,subject from education where user_id = $1"
+    const edQuery = "select ed_id,institution_name,start_date,end_date,qualification_level,grade,subject from education where user_id = $1 order by end_date desc"
     const edQRes = await client.query(edQuery,queryValues)
-    user.eduction = edQRes.rows
+    user.education = edQRes.rows
 
     const workQuery = "select work_id,company_name,role,start_date,end_date,responsibilities from work_experience where user_id = $1"
     const workQRes = await client.query(workQuery,queryValues)
