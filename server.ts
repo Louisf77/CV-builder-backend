@@ -37,7 +37,7 @@ app.get("/viewCV/:userID", async (req,res) => {
     const edQRes = await client.query(edQuery,queryValues)
     user.education = edQRes.rows
 
-    const workQuery = "select work_id,company_name,role,start_date,end_date,responsibilities from work_experience where user_id = $1"
+    const workQuery = "select work_id,company_name,role,start_date,end_date,responsibilities from work_experience where user_id = $1 order by end_date desc"
     const workQRes = await client.query(workQuery,queryValues)
     user.work = workQRes.rows
 
@@ -71,10 +71,10 @@ app.get("/viewCV/:userID", async (req,res) => {
 
 //create details for cv
 app.post("/create/personal-details", async (req,res) => {
-  const {firstName,surname,DOB,email,mobile,address} = req.body
+  const {firstName,surname,dob,email,mobile,address,sub} = req.body
   try {
-    const queryValues = [firstName,surname,DOB,email,mobile,address]
-    const query = "INSERT into users(first_name,surname,dob,email,mobile,address) values ($1,$2,$3,$4,$5)"
+    const queryValues = [firstName,surname,dob,email,mobile,address,sub]
+    const query = "INSERT into users(first_name,surname,dob,email,mobile,address,sub) values ($1,$2,$3,$4,$5,$6,$7)"
     await client.query(query,queryValues)
     res.status(201).json({
       status: "success",
