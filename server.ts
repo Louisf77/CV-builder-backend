@@ -19,6 +19,7 @@ app.use(cors())
 const client = new Client(dbConfig);
 client.connect();
 
+//verify whether user already has information
 app.get("/:sub", async (req, res) => {
   const sub = req.params.sub
   try {
